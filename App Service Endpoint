@@ -1,0 +1,159 @@
+# Projeto: Azure App Service com JWT Authentication
+
+Este repositório contém um exemplo simples de como criar um **App Service** no Azure, expor **endpoints** e proteger as rotas com **autenticação JWT**.
+
+## Pré-requisitos
+
+1. **Conta no Azure**: Necessária para criar os recursos no Azure.
+2. **Azure CLI**: Ferramenta de linha de comando do Azure.
+3. **Node.js**: Usado para construir a aplicação.
+4. **Bibliotecas Node.js**: Express, jsonwebtoken e dotenv.
+
+## Passos
+
+### Passo 1: Criar o App Service no Azure
+
+1. Crie um **Resource Group**:
+   ```bash
+   az group create --name MyResourceGroup --location eastus
+
+
+---
+az appservice plan create --name MyAppServicePlan --resource-group MyResourceGroup --sku B1 --is-linux
+
+
+---
+az webapp create --resource-group MyResourceGroup --plan MyAppServicePlan --name MyAppService --runtime "NODE|14-lts"
+
+---
+Criar a API com Endpoints e JWT
+
+// server.js
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+const SECRET_KEY = process.env.JWT_SECRET_KEY || "your_secret_key";
+
+// Função para gerar token JWT
+function generateToken(username) {
+    return jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+}
+
+// Endpoint de login (autenticação)
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (username === 'user' && password === 'password') {
+        const token = generateToken(username);
+        return res.json({ token });
+    } else {
+        return res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
+// Middleware para proteger rotas com JWT
+function authenticateJWT(req, res, next) {
+    const token = req.header('Authorization')?.split(' ')[1];
+
+    if (!token) {
+        return res.status(403).json({ message: 'Token is required' });
+    }
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.user = user;
+        next();
+    });
+}
+
+// Endpoint protegido
+app.get('/protected', authenticateJWT, (req, res) => {
+    res.json({ message: 'This is a protected route', user: req.user });
+});
+
+// Inicia o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+---
+git init
+git add .
+git commit -m "Initial commit"
+git remote add azure https://<your-app-service-name>.scm.azurewebsites.net:443/<your-app-service-name>.git
+git push azure master
+
+---
+Testar a API
+
+{
+  "username": "user",
+  "password": "password"
+}
+
+
+---
+// server.js
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+const SECRET_KEY = process.env.JWT_SECRET_KEY || "your_secret_key";
+
+// Função para gerar token JWT
+function generateToken(username) {
+    return jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+}
+
+// Endpoint de login (autenticação)
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (username === 'user' && password === 'password') {
+        const token = generateToken(username);
+        return res.json({ token });
+    } else {
+        return res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
+// Middleware para proteger rotas com JWT
+function authenticateJWT(req, res, next) {
+    const token = req.header('Authorization')?.split(' ')[1];
+
+    if (!token) {
+        return res.status(403).json({ message: 'Token is required' });
+    }
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.user = user;
+        next();
+    });
+}
+
+// Endpoint protegido
+app.get('/protected', authenticateJWT, (req, res) => {
+    res.json({ message: 'This is a protected route', user: req.user });
+});
+
+// Inicia o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
