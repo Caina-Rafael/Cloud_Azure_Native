@@ -1,0 +1,93 @@
+# Docker + Azure Container Registry (ACR) Project
+
+Este projeto cria uma imagem Docker para uma aplicação simples Node.js e a envia para o Azure Container Registry (ACR).
+
+## Passos para Execução
+
+### 1. Criar um Resource Group e Azure Container Registry no Azure
+Execute os seguintes comandos no Azure CLI para criar o **Resource Group** e o **Container Registry**:
+
+```bash
+az group create --name myResourceGroup --location eastus
+az acr create --resource-group myResourceGroup --name myContainerRegistry --sku Basic
+
+---
+Dockerfile
+# Usar uma imagem base do Node.js
+FROM node:14
+
+# Criar e definir o diretório de trabalho
+WORKDIR /app
+
+# Copiar os arquivos de código para o diretório de trabalho
+COPY . .
+
+# Instalar dependências da aplicação
+RUN npm install
+
+# Expor a porta onde a aplicação vai rodar
+EXPOSE 3000
+
+# Comando para rodar a aplicação
+CMD ["npm", "start"]
+
+---
+Código da Aplicação (app/index.js)
+
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello World from Azure Container!');
+});
+
+app.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`);
+});
+
+---
+Código da Aplicação (app/package.json)
+
+{
+  "name": "docker-azure-app",
+  "version": "1.0.0",
+  "description": "Simple Node.js app for Docker and Azure",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
+
+---
+Comandos CLI
+
+# Defina variáveis para o Resource Group e ACR
+RESOURCE_GROUP_NAME=myResourceGroup
+ACR_NAME=myContainerRegistry
+
+# Criar o Resource Group
+az group create --name $RESOURCE_GROUP_NAME --location eastus
+
+# Criar o Azure Container Registry
+az acr create --resource-group $RESOURCE_GROUP_NAME --name $ACR_NAME --sku Basic
+
+---
+Login no ACR
+# Fazer login no ACR
+az acr login --name $ACR_NAME
+
+
+---
+Imagem ACR
+
+# Construir a imagem Docker com a tag para o ACR
+docker build -t $ACR_NAME.azurecr.io/myapp:v1 .
+
+# Enviar a imagem para o ACR
+docker push $ACR_NAME.azurecr.io/myapp:v1
+
+---
