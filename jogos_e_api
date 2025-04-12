@@ -1,0 +1,154 @@
+# Projeto: Integração do GitHub Copilot, Jogo Flappy Bird, API Node.js e Roleta de LLMs
+
+## Objetivo
+
+Este projeto é composto por diferentes partes:
+1. **Instalação e Configuração do GitHub Copilot no VS Code**
+2. **Criação de uma Roleta de Jogo com Diferentes LLMs**
+3. **Criação de um Jogo Flappy Bird**
+4. **Criação de uma API em Node.js para Buscar Endereços em JSON**
+
+---
+
+## 1. Instalação e Configuração do GitHub Copilot com VS Code
+
+### Passo 1: Instalar o Visual Studio Code
+
+- Baixe e instale o Visual Studio Code a partir de: [https://code.visualstudio.com/](https://code.visualstudio.com/)
+
+### Passo 2: Instalar o GitHub Copilot
+
+1. Abra o VS Code.
+2. Vá para a aba de **Extensões** (`Ctrl+Shift+X`).
+3. Pesquise por **GitHub Copilot** e clique em **Install**.
+
+### Passo 3: Configurar o GitHub Copilot
+
+1. Após a instalação, você será solicitado a fazer login com sua conta GitHub.
+2. Siga as instruções para autenticar o GitHub Copilot na sua conta.
+3. Configure as preferências do Copilot no VS Code indo para **Configurações** (`Ctrl+,`) e ajustando conforme necessário.
+
+Agora, você pode usar o GitHub Copilot para facilitar o desenvolvimento de código no VS Code.
+
+---
+
+## 2. Criação de uma Roleta de Jogo com Diferentes LLMs
+
+### Arquivo: `roleta.js`
+
+```javascript
+// Função para criar uma roleta de jogo com diferentes LLMs
+const lls = ["GPT-3", "GPT-4", "Codex", "Bard", "Llama 2"];
+
+function spinWheel() {
+    const randomIndex = Math.floor(Math.random() * lls.length);
+    console.log(`A roleta parou no: ${lls[randomIndex]}`);
+}
+
+spinWheel();
+
+
+---
+Roleta.js
+
+// Função para criar uma roleta de jogo com diferentes LLMs
+const lls = ["GPT-3", "GPT-4", "Codex", "Bard", "Llama 2"];
+
+function spinWheel() {
+    const randomIndex = Math.floor(Math.random() * lls.length);
+    console.log(`A roleta parou no: ${lls[randomIndex]}`);
+}
+
+spinWheel();
+
+---
+Flappy Bird
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
+
+---
+css
+
+body {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #70c5ce;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+---
+script.js
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let bird = { x: 50, y: 150, width: 20, height: 20, velocity: 0, gravity: 0.6, jump: -12 };
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    bird.y += bird.velocity;
+    bird.velocity += bird.gravity;
+    
+    if (bird.y > canvas.height - bird.height) {
+        bird.y = canvas.height - bird.height;
+        bird.velocity = 0;
+    }
+    
+    ctx.fillStyle = "#ff0";
+    ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+    
+    requestAnimationFrame(gameLoop);
+}
+
+canvas.addEventListener("click", () => {
+    bird.velocity = bird.jump;
+});
+
+gameLoop();
+
+---
+  npm install express
+
+---
+API
+
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// Dados de exemplo de endereços
+const addresses = [
+    { id: 1, street: "Rua 1", city: "São Paulo", state: "SP" },
+    { id: 2, street: "Rua 2", city: "Rio de Janeiro", state: "RJ" },
+    { id: 3, street: "Rua 3", city: "Belo Horizonte", state: "MG" }
+];
+
+// Endpoint para retornar os endereços
+app.get("/addresses", (req, res) => {
+    res.json(addresses);
+});
+
+// Iniciar o servidor
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+
+---
