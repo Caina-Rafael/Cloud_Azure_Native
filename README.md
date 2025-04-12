@@ -22,6 +22,18 @@ Certifique-se de que você tem o **Terraform** e o **Azure CLI** instalados em s
 
 No diretório `terraform/`, execute os seguintes comandos para criar os recursos no Azure.
 
+# Azure Storage & SQL Database Project
+
+Este projeto usa **Terraform** e **PowerShell** para criar e configurar os seguintes recursos no **Microsoft Azure**:
+
+- **Resource Group**
+- **SQL Database**
+- **Storage Account**
+- **Upload de Imagens no Blob Storage**
+
+## Estrutura do Projeto
+
+```plaintext
 azure-storage-sql-project/
 │
 ├── terraform/
@@ -37,8 +49,7 @@ azure-storage-sql-project/
 │   └── create_table_products.ps1
 │
 ├── README.md
-│
-└── .gitignore
+
 
 
 ```bash
