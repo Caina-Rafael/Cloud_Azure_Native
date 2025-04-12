@@ -1,0 +1,99 @@
+# Projeto: Arquitetura de Ambiente Cloud para API BFF de Aluguel de Carros
+
+## Objetivo
+
+Neste projeto, vamos criar a arquitetura de um ambiente em nuvem para um sistema de **aluguel de carros**, utilizando APIs **BFF (Backend for Frontend)** com duas funções principais: **Rent Process** e **Payment**. A arquitetura será baseada em serviços da **Azure**, usando **Azure Functions**, **API Management**, **Storage**, e outros serviços conforme necessário.
+
+---
+
+## Arquitetura
+
+A arquitetura proposta para este projeto envolve os seguintes componentes principais:
+
+1. **API BFF**: O BFF é responsável por orquestrar as chamadas do front-end para os diferentes backends. Ele faz a interface entre o cliente (aplicação móvel ou web) e os diversos serviços backend, como **Rent Process** e **Payment**.
+2. **Azure Functions**:
+   - **Rent Process Function**: Função que lida com o processamento do aluguel de carros, como consulta de carros disponíveis, escolha do carro, cálculo do preço, etc.
+   - **Payment Function**: Função responsável por processar os pagamentos, integrando com gateways de pagamento e fazendo a validação do pagamento.
+3. **API Management**: Servirá como gateway para todas as APIs, fazendo o roteamento das chamadas para as funções Azure e aplicando políticas de segurança.
+4. **Database (Azure SQL ou Cosmos DB)**: Usado para armazenar informações sobre carros, clientes e transações de aluguel.
+5. **Storage Account (Blob Storage)**: Para armazenar dados não estruturados, como fotos de carros e documentos de usuários.
+
+---
+
+## Descrição dos Componentes
+
+### 1. **API BFF (Backend for Frontend)**
+
+A **API BFF** serve como camada intermediária entre o frontend (aplicativo móvel ou web) e os serviços de backend (funcionalidades de processamento de aluguel e pagamento). Ela recebe as requisições do cliente, orquestra as chamadas para as Azure Functions e retorna as respostas necessárias.
+
+- **EndPoint Rent**: Roteia as requisições para o serviço de aluguel de carros.
+- **EndPoint Payment**: Roteia as requisições para o serviço de pagamento.
+
+### 2. **Azure Functions**
+
+#### 2.1 **Rent Process Function**
+
+A função **Rent Process** será responsável por:
+- Consultar os carros disponíveis.
+- Calcular o preço de aluguel com base no tempo de aluguel e no tipo de carro.
+- Criar uma reserva temporária.
+- Validar a disponibilidade do carro.
+
+Exemplo de código para a função de processamento de aluguel:
+
+```javascript
+module.exports = async function (context, req) {
+    const carId = req.query.carId;
+    const rentalDays = req.query.days;
+    
+    // Consultar carro no banco de dados
+    const car = await getCarFromDatabase(carId);
+    
+    // Calcular preço de aluguel
+    const price = calculateRentalPrice(car, rentalDays);
+    
+    context.res = {
+        status: 200,
+        body: { price: price }
+    };
+};
+
+function calculateRentalPrice(car, days) {
+    return car.dailyRate * days;
+}
+
+async function getCarFromDatabase(carId) {
+    // Simulação de acesso ao banco de dados para retornar as informações do carro
+    return { carId: carId, dailyRate: 30 };
+}
+
+---
+Payment Function
+
+module.exports = async function (context, req) {
+    const amount = req.body.amount;
+    const paymentMethod = req.body.paymentMethod;
+    
+    // Processar pagamento
+    const paymentSuccess = await processPayment(paymentMethod, amount);
+    
+    if (paymentSuccess) {
+        context.res = {
+            status: 200,
+            body: { message: "Payment Successful!" }
+        };
+    } else {
+        context.res = {
+            status: 400,
+            body: { message: "Payment Failed" }
+        };
+    }
+};
+
+async function processPayment(paymentMethod, amount) {
+    // Simulação de pagamento via gateway
+    return paymentMethod === 'valid-method' && amount > 0;
+}
+
+---
+
