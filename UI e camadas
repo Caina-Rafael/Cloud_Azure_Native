@@ -1,0 +1,113 @@
+# Projeto de Cadastro de Produto com Validações
+
+## Descrição
+Este projeto é uma aplicação simples usando **ASP.NET Core** para cadastrar produtos. Ele ilustra o uso de namespaces, camada de UI e validações na camada de UI para garantir que os dados sejam inseridos corretamente.
+
+### Funcionalidades
+1. **Namespace**: O código é organizado em namespaces, como `ProjetoValidacoesUI.Models` e `ProjetoValidacoesUI.Controllers`, para promover a modularidade e organização do projeto.
+2. **Camada de UI**: O sistema exibe um formulário em **Razor** para o usuário cadastrar o produto, com validações de entrada, como preço e quantidade.
+3. **Validações de UI**: A camada de UI realiza validações usando **Data Annotations**. O sistema valida campos obrigatórios e a faixa de valores do preço do produto.
+
+## Como rodar
+1. Clonar o repositório:
+   ```bash
+   git clone <URL do repositório>
+
+---
+dotnet new mvc -n ProjetoValidacoesUI
+
+---
+csharp - Estrutura do código:
+
+// ProjetoValidacoesUI/Models/ProdutoModel.cs
+namespace ProjetoValidacoesUI.Models
+{
+    public class ProdutoModel
+    {
+        public string Nome { get; set; }
+        
+        [Range(1, 1000, ErrorMessage = "O preço deve ser entre 1 e 1000.")]
+        public decimal Preco { get; set; }
+        
+        [Required(ErrorMessage = "A quantidade é obrigatória.")]
+        public int Quantidade { get; set; }
+    }
+}
+
+---
+csharp - controller para gerenciar a interação da UI:
+
+// ProjetoValidacoesUI/Models/ProdutoModel.cs
+namespace ProjetoValidacoesUI.Models
+{
+    public class ProdutoModel
+    {
+        public string Nome { get; set; }
+        
+        [Range(1, 1000, ErrorMessage = "O preço deve ser entre 1 e 1000.")]
+        public decimal Preco { get; set; }
+        
+        [Required(ErrorMessage = "A quantidade é obrigatória.")]
+        public int Quantidade { get; set; }
+    }
+}
+
+---
+html - Camadas
+
+<!-- ProjetoValidacoesUI/Views/Produto/Cadastrar.cshtml -->
+@model ProjetoValidacoesUI.Models.ProdutoModel
+
+<h2>Cadastro de Produto</h2>
+
+<form asp-action="Cadastrar" method="post">
+    <div>
+        <label for="Nome">Nome:</label>
+        <input type="text" id="Nome" name="Nome" asp-for="Nome" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label for="Preco">Preço:</label>
+        <input type="number" id="Preco" name="Preco" asp-for="Preco" />
+        <span asp-validation-for="Preco" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label for="Quantidade">Quantidade:</label>
+        <input type="number" id="Quantidade" name="Quantidade" asp-for="Quantidade" />
+        <span asp-validation-for="Quantidade" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Cadastrar</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<!-- ProjetoValidacoesUI/Views/Produto/Sucesso.cshtml -->
+<h2>Produto Cadastrado com Sucesso!</h2>
+
+---
+Validação:
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllersWithViews().AddDataAnnotationsLocalization();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseStaticFiles();
+    app.UseRouting();
+
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Produto}/{action=Cadastrar}/{id?}");
+    });
+}
+
+
